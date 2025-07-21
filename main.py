@@ -3,32 +3,28 @@ import json
 import requests
 
 
-def scrape_boa():
+def scrape_book_thumbnail():
   '''
-    Gets the logo of Bank of Albania and stores it locally
+  Scrape a single image and save it locally
   '''
-  boa_base_url = "https://www.bankofalbania.org"
-  boa_page_url = f'{boa_base_url}/Tregjet/Kursi_zyrtar_i_kembimit/'
-  result = requests.get(boa_page_url)
+  book_page_url = 'http://books.toscrape.com'
+  result = requests.get(book_page_url)
   soup = bs4.BeautifulSoup(result.text, 'lxml')
-  images = soup.select('img')
-  
-  for image in images:
-    if image.attrs.get('alt') == 'logo':
-      image_source = image.attrs.get('src')
-      image_res = requests.get(f'{boa_base_url}{image_source}')
-      content_type = image_res.headers.get('Content-Type')
-      if content_type and content_type.startswith('image/'):
-        image_type = content_type.split('/')[1]
-        if image_type:
-          # wb = write as binary
-          with open(f'logo.{image_type}', 'wb') as f:
-            f.write(image_res.content)
+  image = soup.select_one('img.thumbnail')
+  image_source = image.attrs.get('src')
+  image_res = requests.get(f'{book_page_url}/{image_source}')
+  content_type = image_res.headers.get('Content-Type')
+  if content_type and content_type.startswith('image/'):
+    image_type = content_type.split('/')[1]
+    if image_type:
+      # wb = write as binary
+      with open(f'scraped_logo.{image_type}', 'wb') as f:
+        f.write(image_res.content)
       
 
 def scrape_books():
   '''
-    Scare all books in a ready to script page
+  Scrape all books in a ready to script page
   ''' 
   page_num = 1
   scraped_books = []
@@ -152,7 +148,10 @@ def scrape_quotes():
 
          
 if __name__ == '__main__':
-  # scrape_boa()
+  '''
+  Uncomment any function you want to execute when running `python main.py`
+  '''
+  # scrape_book_thumbnail()
   # scrape_books()
   scrape_quotes()
   pass
